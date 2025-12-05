@@ -16,7 +16,7 @@ export interface RegistrationFormData {
   nickname: string;
   birthDate: string;
   teacher: string;
-  nomination: Nomination | '';
+  nomination: Nomination[];
 }
 
 export interface SubmissionResult {

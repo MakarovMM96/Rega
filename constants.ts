@@ -1,4 +1,4 @@
-import { Nomination } from './types';
+import { Nomination, RegistrationFormData } from './types';
 
 // NOTE: In a real production app, never hardcode tokens on the frontend.
 // This should be in an environment variable or handled by a backend proxy.
@@ -20,11 +20,11 @@ export const NOMINATIONS_LIST = [
   Nomination.BBOYS_13_15,
 ];
 
-export const INITIAL_FORM_STATE = {
+export const INITIAL_FORM_STATE: RegistrationFormData = {
   fullName: '',
   city: '',
   nickname: '',
   birthDate: '',
   teacher: '',
-  nomination: '' as const,
+  nomination: [],
 };

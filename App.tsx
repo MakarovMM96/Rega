@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, MapPin, Hash, Calendar, GraduationCap, Loader2, CheckCircle, Sparkles } from 'lucide-react';
-import { RegistrationFormData, SubmissionResult } from './types';
+import { RegistrationFormData, SubmissionResult, Nomination } from './types';
 import { INITIAL_FORM_STATE } from './constants';
 import { InputField } from './components/InputField';
 import { NominationSelect } from './components/NominationSelect';
@@ -21,18 +21,34 @@ const App: React.FC = () => {
     if (!formData.nickname.trim()) newErrors.nickname = "Введите никнейм";
     if (!formData.birthDate) newErrors.birthDate = "Выберите дату рождения";
     if (!formData.teacher.trim()) newErrors.teacher = "Введите педагога";
-    if (!formData.nomination) newErrors.nomination = "Выберите номинацию";
+    if (formData.nomination.length === 0) newErrors.nomination = "Выберите хотя бы одну номинацию";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     // Clear error when user types
     if (errors[name as keyof RegistrationFormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleNominationToggle = (nom: Nomination) => {
+    setFormData(prev => {
+      const current = prev.nomination;
+      const isSelected = current.includes(nom);
+      const newNominations = isSelected 
+        ? current.filter(n => n !== nom) 
+        : [...current, nom];
+      
+      return { ...prev, nomination: newNominations };
+    });
+
+    if (errors.nomination) {
+      setErrors(prev => ({ ...prev, nomination: undefined }));
     }
   };
 
@@ -74,7 +90,7 @@ const App: React.FC = () => {
     <div className="min-h-screen relative flex items-center justify-center p-4 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800">
       <Snowfall />
 
-      <div className="relative z-10 w-full max-w-lg">
+      <div className="relative z-10 w-full max-w-lg my-10">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-3 bg-emerald-500/10 rounded-full mb-4 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
@@ -140,10 +156,10 @@ const App: React.FC = () => {
                     error={errors.city}
                     icon={<MapPin size={18} />}
                   />
-                   <InputField
-                    label="Педагог / Школа"
+                  <InputField
+                    label="Педагог / Клуб"
                     name="teacher"
-                    placeholder="Имя тренера"
+                    placeholder="Имя педагога"
                     value={formData.teacher}
                     onChange={handleChange}
                     error={errors.teacher}
@@ -151,23 +167,16 @@ const App: React.FC = () => {
                   />
                 </div>
 
-                <NominationSelect
-                  value={formData.nomination}
-                  onChange={handleChange}
+                <NominationSelect 
+                  selected={formData.nomination}
+                  onChange={handleNominationToggle}
                   error={errors.nomination}
                 />
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`
-                    w-full py-3.5 px-4 mt-6 rounded-xl text-white font-bold text-lg shadow-lg
-                    transform transition-all duration-200 active:scale-95
-                    flex items-center justify-center gap-2
-                    ${isSubmitting 
-                      ? 'bg-slate-700 cursor-not-allowed opacity-70' 
-                      : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 hover:shadow-emerald-500/25'}
-                  `}
+                  className="w-full mt-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -175,41 +184,34 @@ const App: React.FC = () => {
                       Регистрация...
                     </>
                   ) : (
-                    "Зарегистрироваться"
+                    'Зарегистрироваться'
                   )}
                 </button>
               </form>
             ) : (
               <div className="text-center py-8 animate-fadeIn">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-500/20 mb-6">
-                  <CheckCircle className="h-10 w-10 text-emerald-400" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-6">
+                  <CheckCircle className="text-emerald-400 w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Успешно!</h3>
-                <p className="text-slate-300 mb-6">{result.message}</p>
-                
-                {result.aiMessage && (
-                  <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 rounded-xl p-4 mb-6">
-                    <p className="text-indigo-200 text-sm font-medium italic">
-                      "{result.aiMessage}"
-                    </p>
-                  </div>
-                )}
-
+                <h2 className="text-2xl font-bold text-white mb-2">{result.message}</h2>
+                <div className="bg-slate-800/50 rounded-lg p-4 mt-6 border border-slate-700">
+                   <p className="text-sm text-slate-400 mb-2 uppercase tracking-wider font-bold text-xs">AI Hype Message:</p>
+                   <p className="text-lg text-emerald-300 font-medium italic">"{result.aiMessage}"</p>
+                </div>
                 <button
                   onClick={() => setResult(null)}
-                  className="text-emerald-400 hover:text-emerald-300 font-medium text-sm transition-colors"
+                  className="mt-8 text-slate-400 hover:text-white underline underline-offset-4 text-sm transition-colors"
                 >
-                  Отправить еще одну заявку
+                  Зарегистрировать еще одного участника
                 </button>
               </div>
             )}
           </div>
         </div>
         
-        {/* Footer */}
-        <div className="text-center mt-6 text-slate-500 text-xs">
-          <p>© 2024 Yolka Festival. All rights reserved.</p>
-        </div>
+        <p className="text-center text-slate-600 text-xs mt-6">
+          © {new Date().getFullYear()} Yolka Fest Registration System
+        </p>
       </div>
     </div>
   );
