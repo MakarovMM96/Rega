@@ -5,7 +5,6 @@ import { INITIAL_FORM_STATE } from './constants';
 import { InputField } from './components/InputField';
 import { NominationSelect } from './components/NominationSelect';
 import { Snowfall } from './components/Snowfall';
-import { generateHypeMessage } from './services/geminiService';
 import { saveRegistrationToYandex } from './services/yandexService';
 
 const App: React.FC = () => {
@@ -60,17 +59,13 @@ const App: React.FC = () => {
     setResult(null);
 
     try {
-      // 1. Parallel execution: Save data and Generate AI Hype
-      const [saveSuccess, hypeMessage] = await Promise.all([
-        saveRegistrationToYandex(formData),
-        generateHypeMessage(formData.nickname, formData.nomination)
-      ]);
+      const saveSuccess = await saveRegistrationToYandex(formData);
 
       if (saveSuccess) {
         setResult({
           success: true,
           message: "Регистрация прошла успешно!",
-          aiMessage: hypeMessage
+          aiMessage: `Добро пожаловать на Йолку, ${formData.nickname}! Удачи в номинациях: ${formData.nomination.join(', ')}!`
         });
         setFormData(INITIAL_FORM_STATE);
       } else {
@@ -195,7 +190,7 @@ const App: React.FC = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">{result.message}</h2>
                 <div className="bg-slate-800/50 rounded-lg p-4 mt-6 border border-slate-700">
-                   <p className="text-sm text-slate-400 mb-2 uppercase tracking-wider font-bold text-xs">AI Hype Message:</p>
+                   <p className="text-sm text-slate-400 mb-2 uppercase tracking-wider font-bold text-xs">Сообщение:</p>
                    <p className="text-lg text-emerald-300 font-medium italic">"{result.aiMessage}"</p>
                 </div>
                 <button
