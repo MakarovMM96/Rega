@@ -1,6 +1,72 @@
 ```
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.js.map
+*.mjs.map
+*.cjs.map
+*.ts.map
+*.jsx.map
+*.tsx.map
+
 # Environment
 .env
 .env.local
 .env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Node.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite
+vite/dist/
+
+# TypeScript
+*.tsbuildinfo
+.next/
+.nuxt/
+dist/
+
+# Browser-sync
+.browser-sync-client/
+
+# Coverage
+coverage/
+htmlcov/
+
+# System
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
 ```
