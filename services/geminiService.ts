@@ -1,13 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY || '';
-// Initialize safe client even if key is missing to prevent crash, check before call.
-const ai = new GoogleGenAI({ apiKey });
+const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || '';
+
+let ai: GoogleGenAI | null = null;
+
+// Initialize client only if key is present to prevent errors
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey });
+}
 
 export const generateHypeMessage = async (nickname: string, nominations: string[]): Promise<string> => {
   const nominationStr = nominations.join(', ');
   
-  if (!apiKey) {
+  if (!apiKey || !ai) {
     console.warn("Gemini API Key is missing.");
     return `Добро пожаловать на Йолку, ${nickname}! Удачи в номинациях: ${nominationStr}!`;
   }
